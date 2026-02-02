@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore DosBoxHardDiskActivity.csproj
+    
+    - name: Build
+      run: dotnet build DosBoxHardDiskActivity.csproj -c Release --no-restore
+    
+    - name: Publish for Raspberry Pi
+      run: dotnet publish DosBoxHardDiskActivity.csproj -c Release -r linux-arm64 --self-contained -o ./publish/linux-arm64 /p:PublishAot=false
+    
+    - name: Copy config and sounds
+      run: |
+        cp config.yaml ./publish/linux-arm64/
+        mkdir -p ./publish/linux-arm64/sounds
+        if [ -d sounds ] && [ "$(ls -A sounds)" ]; then
+          cp sounds/* ./publish/linux-arm64/sounds/ 2>/dev/null || true
+        fi
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DosBoxHardDiskActivity-linux-arm64-rpi
+        path: ./publish/linux-arm64/*
+        retention-days: 30

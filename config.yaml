@@ -1,0 +1,8 @@
+config:
+  directories:
+  - "~/drives"
+  gpio_pin: 4
+
+sounds:
+  long_activity: "sounds/long.wav"
+  short_activity: "sounds/short.wav"
