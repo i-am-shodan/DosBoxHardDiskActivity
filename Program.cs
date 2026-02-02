@@ -81,10 +81,24 @@ class Program
                 var parts = trimmedLine.Split(':', 2);
                 var key = parts[0].Trim();
                 var value = parts[1].Trim().Trim('"');
-                config[$"{currentSection}:{key}"] = value;
+                
+                // Convert snake_case to PascalCase for proper binding
+                var configKey = ConvertToPascalCase(key);
+                config[$"{currentSection}:{configKey}"] = value;
             }
         }
 
         return config;
+    }
+
+    private static string ConvertToPascalCase(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+            
+        var parts = input.Split('_');
+        var result = string.Concat(parts.Select(part => 
+            char.ToUpper(part[0]) + part.Substring(1).ToLower()));
+        return result;
     }
 }

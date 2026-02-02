@@ -148,8 +148,8 @@ public class FileSystemMonitorService : BackgroundService
             // Start fake GPIO activity
             _gpioController.StartActivity();
 
-            // Play audio and get duration
-            var duration = await _audioPlayer.PlayAudioFileAsync(soundFile);
+            // Play audio
+            await _audioPlayer.PlayAudioFileAsync(soundFile);
 
             // Stop fake GPIO activity (this also sets GPIO low)
             _gpioController.StopActivity();
