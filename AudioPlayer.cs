@@ -45,13 +45,17 @@ public class AudioPlayer : IDisposable
 
             ProcessStartInfo processStartInfo;
 
+            // Calculate volume as fraction (0.0 to 1.0) for sox
+            var volumeFraction = _volume / 100.0;
+
             if (IsWindows)
             {
-                // Use PowerShell with System.Media.SoundPlayer on Windows
+                // Try ffplay first (cross-platform, supports volume), fallback to basic playback
+                // ffplay -nodisp -autoexit -volume {0-100} file.wav
                 processStartInfo = new ProcessStartInfo
                 {
-                    FileName = "powershell.exe",
-                    Arguments = $"-NoProfile -NonInteractive -Command \"(New-Object System.Media.SoundPlayer '{fullPath}').PlaySync()\"",
+                    FileName = "ffplay",
+                    Arguments = $"-nodisp -autoexit -volume {_volume} \"{fullPath}\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -61,13 +65,12 @@ public class AudioPlayer : IDisposable
             }
             else if (IsLinux)
             {
-                // Use aplay (ALSA) on Linux with amixer for volume control
-                // First set volume using amixer, then play the sound
-                var volumePercent = $"{_volume}%";
+                // Use 'play' from sox package with volume control
+                // play file.wav vol {fraction} where fraction is 0.0 to 1.0+
                 processStartInfo = new ProcessStartInfo
                 {
-                    FileName = "bash",
-                    Arguments = $"-c \"amixer -q sset PCM {volumePercent} && aplay -q '{fullPath}'\"",
+                    FileName = "play",
+                    Arguments = $"-q \"{fullPath}\" vol {volumeFraction:F2}",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,

@@ -24,7 +24,7 @@ class Program
                 services.AddSingleton<AudioPlayer>(sp => 
                 {
                     var logger = sp.GetRequiredService<ILogger<AudioPlayer>>();
-                    var appConfig = context.Configuration.GetSection("config").Get<AppConfiguration>() ?? new AppConfiguration();
+                    var appConfig = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AppConfiguration>>().Value;
                     var basePath = AppContext.BaseDirectory;
                     return new AudioPlayer(logger, basePath, appConfig.Volume);
                 });
