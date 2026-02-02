@@ -4,6 +4,7 @@ public class AppConfiguration
 {
     public List<string> Directories { get; set; } = new();
     public int GpioPin { get; set; } = 4;
+    public int Volume { get; set; } = 40;
 }
 
 public class SoundsConfiguration

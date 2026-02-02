@@ -2,6 +2,7 @@ config:
   directories:
   - "~/drives"
   gpio_pin: 4
+  volume: 40
 
 sounds:
   long_activity: "sounds/long.wav"

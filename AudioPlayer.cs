@@ -8,6 +8,7 @@ public class AudioPlayer : IDisposable
 {
     private readonly string _basePath;
     private readonly ILogger<AudioPlayer> _logger;
+    private readonly int _volume;
     private Process? _currentProcess;
     private readonly SemaphoreSlim _playbackLock = new(1, 1);
     private bool _isPlaying;
@@ -16,10 +17,11 @@ public class AudioPlayer : IDisposable
 
     public bool IsPlaying => _isPlaying;
 
-    public AudioPlayer(ILogger<AudioPlayer> logger, string basePath = ".")
+    public AudioPlayer(ILogger<AudioPlayer> logger, string basePath = ".", int volume = 40)
     {
         _logger = logger;
         _basePath = basePath;
+        _volume = Math.Clamp(volume, 0, 100);
     }
 
     public async Task PlayAudioFileAsync(string filename, CancellationToken cancellationToken = default)
@@ -59,11 +61,13 @@ public class AudioPlayer : IDisposable
             }
             else if (IsLinux)
             {
-                // Use aplay (ALSA) on Linux
+                // Use aplay (ALSA) on Linux with amixer for volume control
+                // First set volume using amixer, then play the sound
+                var volumePercent = $"{_volume}%";
                 processStartInfo = new ProcessStartInfo
                 {
-                    FileName = "aplay",
-                    Arguments = $"-q \"{fullPath}\"", // -q for quiet mode
+                    FileName = "bash",
+                    Arguments = $"-c \"amixer -q sset PCM {volumePercent} && aplay -q '{fullPath}'\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
