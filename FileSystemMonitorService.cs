@@ -69,6 +69,7 @@ public class FileSystemMonitorService : BackgroundService
                     NotifyFilter = NotifyFilters.FileName 
                                  | NotifyFilters.DirectoryName 
                                  | NotifyFilters.LastWrite 
+                                 | NotifyFilters.LastAccess
                                  | NotifyFilters.Size,
                     IncludeSubdirectories = true,
                     EnableRaisingEvents = true
