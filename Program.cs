@@ -21,7 +21,12 @@ class Program
             {
                 services.Configure<AppConfiguration>(context.Configuration.GetSection("config"));
                 services.Configure<SoundsConfiguration>(context.Configuration.GetSection("sounds"));
-                services.AddSingleton<AudioPlayer>();
+                services.AddSingleton<AudioPlayer>(sp => 
+                {
+                    var logger = sp.GetRequiredService<ILogger<AudioPlayer>>();
+                    var basePath = AppContext.BaseDirectory;
+                    return new AudioPlayer(logger, basePath);
+                });
                 services.AddSingleton<GpioController>();
                 services.AddHostedService<FileSystemMonitorService>();
             })
